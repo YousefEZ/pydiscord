@@ -11,8 +11,14 @@ to install discord.py API.
 make a new .py file, and make a dictionary containing the flow name and its corresponding object
 at the end of the file and call it `flows`.
 
-change the responnse.help.flows to the name of your new response file, so if 
-tutorial is the new response .py file then change it to response.tutorial.flows
+import the response file so if the new response file is tutorial.py (placed in responses dir)
+then its
+```
+from responses import tutorial
+```
+
+change the help.flows to the name of your new response file, so if 
+tutorial is the new response .py file then change it to tutorial.flows
 
 __for embed tests__
 ```
