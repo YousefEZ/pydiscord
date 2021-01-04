@@ -1,5 +1,3 @@
-from configparser import ConfigParser, ExtendedInterpolation
-
 from discord import Embed
 import discord.ext
 from utils import colours, emojis
@@ -119,8 +117,7 @@ class Handler:
             bool: true of false that indicates whether the data is valid.
         """
         
-        return message.author == self.__ctx.message.author and \
-            message.channel == self.__ctx.message.channel
+        return message.author == self.__ctx.message.author and message.channel == self.__ctx.message.channel
 
     async def get_message(self):
         """This method waits for a message to be sent by the user"""
@@ -159,14 +156,20 @@ class Handler:
 
         colour = colours.get_colour(flow.colour)
         embed = Embed(title=flow.title, colour=colour)
-
-        for field in flow.fields:
-            if len(field) == 2:
-                embed.add_field(name=field[0], value=field[1], inline=True)
+        fields = flow.fields
+        if type(fields[0]) == tuple:
+            for field in fields:
+                if len(field) == 2:
+                    embed.add_field(name=field[0], value=field[1], inline=True)
+                else:
+                    embed.add_field(name=field[0], value=field[1], inline=field[2])
+        else:
+            if len(fields) == 2:
+                embed.add_field(name=fields[0], value=fields[1], inline=True)
             else:
-                embed.add_field(name=field[0], value=field[1], inline=field[2])
+                embed.add_field(name=fields[0], value=fields[1], inline=fields[2])
 
-        embed.set_footer(text=flow.footer_text, icon_url=flow.footer_image)
+        embed.set_footer(text=flow.footer_text, icon_url=flow.footer_icon)
         embed.set_thumbnail(url=flow.thumbnail)
         embed.set_image(url=flow.image)
 
@@ -181,7 +184,7 @@ class Handler:
         Returns:
         Menu : Object that contains the menu
         """
-        embed, message_type = self.retrieve_embed(flow_type)
+        embed = self.retrieve_embed(flow_type)
         pointer = self.__pages[flow_type].pointer
         menu = {'MAIN': embed}
 
