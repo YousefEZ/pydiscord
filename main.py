@@ -3,7 +3,7 @@ from discord.ext import commands
 from src.handler import Handler
 from utils import settings
 from host import base
-import responses
+from responses import help
 
 prefix = "!"
 bot = commands.AutoShardedBot(command_prefix=prefix)
@@ -32,7 +32,7 @@ async def menu_test(ctx, *args):
     try:
         menu_name = " ".join(args)
         player = base.DummyNation()  # Generates a simulated player.
-        handler = Handler(ctx, bot, responses.help.flows, player)  # Supplies the data to the handler
+        handler = Handler(ctx, bot, help.flows, player)  # Supplies the data to the handler
         menu = handler.retrieve_menu(menu_name)
         await menu.attach_numbers()  # Attach the reactions to change pages
         await menu.deploy_menu(ctx, bot)  # Sends the menu to the user.
@@ -55,7 +55,7 @@ async def embed_test(ctx, *args):
     try:
         flow = ' '.join(args)
         player = base.DummyNation()
-        handler = Handler(ctx, bot, responses.help.flows, player)
+        handler = Handler(ctx, bot, help.flows, player)
         await handler.display(flow)
     except Exception as e:
         print(f"!![MAIN][ERROR] {e}")
