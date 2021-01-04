@@ -21,7 +21,8 @@ async def ping(ctx):
 @bot.command()
 async def menu_test(ctx, *args):
     """generates an interactive menu that uses reactions to trigger functions.
-
+       !menu_test ALLIANCE
+       
     Args:
         ctx (object): metadata supplied by discord (automatic)
         file (str): path of the .ini file (absolute or relative)
@@ -43,7 +44,7 @@ async def menu_test(ctx, *args):
 @bot.command()
 async def embed_test(ctx, *args):
     """reads the contents from a .ini file and outputs the embedded version.
-    example command: !embed_test ../data/example.ini EXAMPLE will run
+    example command: !embed_test TUTORIAL will run
 
     Args:
         ctx (object): metadata supplied by discord (automatic)
