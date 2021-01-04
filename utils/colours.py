@@ -1,5 +1,4 @@
 from discord import Colour
-from host.units import INFANTRY, NAVY, AIRCRAFTS, LAND
 
 
 COLOURS = {'teal': 0x1abc9c,
@@ -86,10 +85,10 @@ def colour_infantry(i):
     return r, g, b
 
 
-UNIT_COLOURS = {INFANTRY: lambda i: colour_infantry(i),
-                NAVY: lambda i: colour_navy(i),
-                AIRCRAFTS: lambda i: colour_aircraft(i),
-                LAND: lambda i: colour_vehicle(i)}
+UNIT_COLOURS = {'INFANTRY': lambda i: colour_infantry(i),
+                'NAVY': lambda i: colour_navy(i),
+                'AIRCRAFTS': lambda i: colour_aircraft(i),
+                'LAND': lambda i: colour_vehicle(i)}
 
 
 def get_colour(colour):
