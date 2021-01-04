@@ -7,7 +7,7 @@ class Tutorial:
     colour = "green"
     def __init__(self, player=None): 
 
-        self.field = (('Official Discord Server:',
+        self.fields = (('Official Discord Server:',
                    '''
                    https://discord.gg/YDSDuHg
         
@@ -28,7 +28,7 @@ class P1:
     colour = "blue"
     def __init__(self, player=None): 
 
-        self.field = (("https://discord.gg/YDSDuHg",
+        self.fields = (("https://discord.gg/YDSDuHg",
                    """
                    \u200b
                    **-**`alliance set flag <url>`: :flag_fr: Sets the flag for your alliance. (Requires __leadingstate__ permissions).
@@ -60,7 +60,7 @@ class Alliance:
     colour = "blue"
     def __init__(self, player=None):
 
-        self.field = (("Official Discord Server:",
+        self.fields = (("Official Discord Server:",
                    """
     
                    https://discord.gg/YDSDuHg
