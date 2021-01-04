@@ -1,6 +1,6 @@
 from discord.ext import commands
 
-from handler import Handler
+from src.handler import Handler
 from utils import settings
 from host import base
 import responses
