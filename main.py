@@ -3,10 +3,11 @@ from discord.ext import commands
 from handler import Handler
 from utils import settings
 from host import base
-from responses import help
+from responses import help as hp
 
 prefix = "!"
 bot = commands.AutoShardedBot(command_prefix=prefix)
+bot.remove_command("help")
 
 @bot.event
 async def on_ready():
@@ -31,13 +32,23 @@ async def menu_test(ctx, *args):
 
     menu_name = " ".join(args)
     player = base.DummyNation()  # Generates a simulated player.
-    handler = Handler(ctx, bot, help.flows, player)  # Supplies the data to the handler
+    handler = Handler(ctx, bot, hp.flows)  # Supplies the data to the handler
     menu = handler.retrieve_menu(menu_name)
     print('*[CLIENT] RETRIEVED MENU')
     await menu.attach_numbers()  # Attach the reactions to change pages
-    await menu.deploy_menu()  # Sends the menu to the user.
+    await menu.deploy_menu(player)  # Sends the menu to the user.
 
     print('*[CLIENT] EXITING MENU FUNCTION')
+
+@bot.command()
+async def help(ctx, request: str = None):
+
+    if request is None:
+        request = 'HELP'
+
+    request = request.upper()
+    handler = Handler(ctx, bot, hp.flows)
+    await handler.display(request)
 
 
 @bot.command()
@@ -53,8 +64,8 @@ async def embed_test(ctx, *args):
 
     flow = ' '.join(args)
     player = base.DummyNation()
-    handler = Handler(ctx, bot, help.flows, player)
-    await handler.display(flow)
+    handler = Handler(ctx, bot, hp.flows)
+    await handler.display(flow, player)
     print('*[CLIENT] EXITING EMBED FUNCTION')
 
 
