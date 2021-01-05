@@ -62,10 +62,10 @@ class Menu:
         
         await asyncio.sleep(2)
     
-    async def deploy_menu(self):
+    async def deploy_menu(self, obj=None):
         """This method deploys the menu into the ctx.channel and manages the menu."""
 
-        await self.__handler.display(self.__main)
+        await self.__handler.display(self.__main, obj)
 
         for i in self.__reactions.keys():
             await self.__handler.message.add_reaction(i)
