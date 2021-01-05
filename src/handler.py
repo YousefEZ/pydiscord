@@ -7,17 +7,18 @@ import asyncio
 class Menu:
     """Object that manages embed in a form of a menu."""
 
-    def __init__(self, pages: dict, ctx: discord.ext.commands.context, bot: discord.ext.commands.AutoShardedBot):
+    def __init__(self, pages: list, ctx: discord.ext.commands.context, bot: discord.ext.commands.AutoShardedBot):
         """Initialisation method of the Menu object.
         Args:
             pages (dict): (str) name of the flow type that will map to its embed. -> (Embed) it's embed
             ctx (discord.ext.commands.context): context, required to display the menu
             bot (discord.ext.commands.AutoShardedBot) : bot, required to control action (reactions).
         """
-
-        self.__pages = pages
+        self.__main = pages[0][0]
+        self.__pages = dict(pages)
         self.__ctx = ctx
         self.__bot = bot
+        self.__handler = Handler(ctx, bot, self.__pages)
         self.__reactions = {}
         self.__message = None
         self.__exit = False
@@ -64,9 +65,10 @@ class Menu:
     async def deploy_menu(self):
         """This method deploys the menu into the ctx.channel and manages the menu."""
 
-        self.__message = await self.__ctx.message.channel.send(embed=self.__pages['MAIN'])
+        await self.__handler.display(self.__main)
+
         for i in self.__reactions.keys():
-            await self.__message.add_reaction(i)
+            await self.__handler.message.add_reaction(i)
         
         while not self.__exit:
             reaction, user = await self.__bot.wait_for('reaction_add', timeout=60.0, check=self.verify)
@@ -82,13 +84,13 @@ class Menu:
     async def clear_reactions(self):
         self.__ctx.message.clear_reactions()
 
-    async def change_page(self, page):
+    async def change_page(self, page, obj):
         """function that changes the embed on display
 
         Args:
             page (str): flow state that identifies the page embed in the page
         """
-        await self.__message.edit(embed=self.__pages[page])
+        await self.__handler.display(page, obj)
 
 
 class Handler:
@@ -96,16 +98,13 @@ class Handler:
        Data is stored in .ini files, where they are called and parsed. """
     
     def __init__(self, ctx: discord.ext.commands.context, bot: discord.ext.commands.AutoShardedBot,
-                 pages: dict, player: object):
+                 pages: dict):
 
         self.__ctx = ctx
         self.__bot = bot
-        self.player = player
         self.__pages = pages
         self.message = None
-    
-    async def send(self, flow: str):
-        return await self.__ctx.send(embed=self.retrieve_embed(flow))
+
     
     def verify(self, message):
         """Method verifies if the content of the message is in the contents
@@ -128,7 +127,10 @@ class Handler:
             return confirm.content
         return None
 
-    async def display(self, flow):
+    async def send(self, flow: str, obj):
+        return await self.__ctx.send(embed=self.retrieve_embed(flow, obj))
+
+    async def display(self, flow, obj=None):
         """this is the main function that we use to send one message, and one message only.
            However edits to that message can take place.
 
@@ -137,12 +139,12 @@ class Handler:
         """
 
         if self.message is None:
-            self.message = await self.send(flow)
+            self.message = await self.send(flow, obj)
         else:
-            await self.message.edit(embed=self.retrieve_embed(flow))
+            await self.message.edit(embed=self.retrieve_embed(flow, obj))
 
 
-    def retrieve_embed(self, flow_type):
+    def retrieve_embed(self, flow_type, obj=None):
         """Reads the contents of the section in the .ini file, and
         creates an embed with that data.
 
@@ -152,7 +154,7 @@ class Handler:
         Returns:
             Embed: Embed Object, discord compatible.
         """
-        flow = self.__pages[flow_type](self.player)
+        flow = self.__pages[flow_type](obj)
 
         colour = colours.get_colour(flow.colour)
         embed = Embed(title=flow.title, colour=colour)
@@ -186,11 +188,11 @@ class Handler:
         """
         embed = self.retrieve_embed(flow_type)
         pointer = self.__pages[flow_type].pointer
-        menu = {'MAIN': embed}
+        menu = [(flow_type, self.__pages[flow_type])]
 
         while pointer is not None:
             # gets all the pages in the menu.
-            menu[pointer.flow] = self.retrieve_embed(pointer.flow)
+            menu.append((pointer.flow, self.__pages[flow_type]))
             pointer = pointer.pointer
 
         return Menu(menu, self.__ctx, self.__bot)
