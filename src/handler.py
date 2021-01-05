@@ -36,6 +36,8 @@ class Menu:
         
     async def attach_numbers(self):
         """makes the pages behave in a page form."""
+        if len(self.__pages) == 1:
+            return
         for page, i in zip(self.__pages.keys(), range(1, 10)):
             self.__reactions[emojis.PAGES[i]] = (Menu.change_page, (self, page))
         
