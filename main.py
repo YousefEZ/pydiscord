@@ -48,7 +48,7 @@ async def help(ctx, request: str = None):
 
     request = request.upper()
     handler = Handler(ctx, bot, hp.flows)
-    await handler.display(request)
+    await handler.display(request, None)
 
 
 @bot.command()
