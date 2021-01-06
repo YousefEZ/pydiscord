@@ -9,7 +9,7 @@ def currency(amount: float) -> str:
         str: readable format of the value.
     """
 
-    return "{:,}".format(float("{:.2f}".format(float(amount))))
+    return "£ {:,}".format(float("{:.2f}".format(float(amount))))
 
 def stats(stat: int) -> str:
     """converts a value from 0 - 100 into a loading bar.
