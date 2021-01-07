@@ -164,14 +164,14 @@ class Handler:
         if type(fields[0]) == tuple:
             for field in fields:
                 if len(field) == 2:
-                    embed.add_field(name=field[0], value=field[1], inline=True)
+                    embed.add_field(name=field[0], value=field[1].replace('\t',''), inline=True)
                 else:
-                    embed.add_field(name=field[0], value=field[1], inline=field[2])
+                    embed.add_field(name=field[0], value=field[1].replace('\t',''), inline=field[2])
         else:
             if len(fields) == 2:
-                embed.add_field(name=fields[0], value=fields[1], inline=True)
+                embed.add_field(name=fields[0], value=field[1].replace('\t',''), inline=True)
             else:
-                embed.add_field(name=fields[0], value=fields[1], inline=fields[2])
+                embed.add_field(name=fields[0], value=field[1].replace('\t',''), inline=fields[2])
 
         embed.set_footer(text=flow.footer_text, icon_url=flow.footer_icon)
         embed.set_thumbnail(url=flow.thumbnail)
