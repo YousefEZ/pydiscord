@@ -194,7 +194,7 @@ class Handler:
 
         while pointer is not None:
             # gets all the pages in the menu.
-            menu.append((pointer.flow, self.__pages[flow_type]))
+            menu.append((pointer.flow, pointer))
             pointer = pointer.pointer
 
         return Menu(menu, self.__ctx, self.__bot)
