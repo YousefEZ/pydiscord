@@ -34,12 +34,12 @@ class Menu:
         """
         self.__reactions[reaction] = (function, args)
         
-    async def attach_numbers(self):
+    async def attach_numbers(self, obj = None):
         """makes the pages behave in a page form."""
         if len(self.__pages) == 1:
             return
         for page, i in zip(self.__pages.keys(), range(1, 10)):
-            self.__reactions[emojis.PAGES[i]] = (Menu.change_page, (self, page))
+            self.__reactions[emojis.PAGES[i]] = (Menu.change_page, (self, page, obj))
         
     def verify(self, reaction: discord.reaction.Reaction, user: discord.member.Member):
         """method that checks that the reaction is sent from the user.
