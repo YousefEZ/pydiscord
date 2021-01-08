@@ -86,7 +86,7 @@ class Menu:
     async def clear_reactions(self):
         self.__ctx.message.clear_reactions()
 
-    async def change_page(self, page, obj):
+    async def change_page(self, page, obj=None):
         """function that changes the embed on display
 
         Args:
