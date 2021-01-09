@@ -1,29 +1,48 @@
+import asyncio
 from discord import Embed
 import discord.ext
+
 from utils import colours, emojis
-import asyncio
+
 
 
 class Menu:
     """Object that manages embed in a form of a menu."""
 
-    def __init__(self, pages: list, ctx: discord.ext.commands.context, bot: discord.ext.commands.AutoShardedBot):
+    def __init__(self, pages: list, ctx: discord.ext.commands.context = None,
+                 client: discord.ext.commands.AutoShardedBot = None):
         """Initialisation method of the Menu object.
         Args:
             pages (dict): (str) name of the flow type that will map to its embed. -> (Embed) it's embed
-            ctx (discord.ext.commands.context): context, required to display the menu
-            bot (discord.ext.commands.AutoShardedBot) : bot, required to control action (reactions).
+            ctx (discord.ext.commands.context): context, required to display the menu. Defaults to None.
+            client (discord.ext.commands.AutoShardedBot) : bot, required to control action (reactions). Defaults to None
         """
         self.__main = pages[0][0]
         self.__pages = dict(pages)
         self.__ctx = ctx
-        self.__bot = bot
-        self.__handler = Handler(ctx, bot, self.__pages)
+        self.__client = client
+        self.__handler = Handler(ctx, client, self.__pages)
         self.__reactions = {}
         self.__message = None
         self.__exit = False
+        self.__debug = False
+        self.__close = None
+
+    def debug(self, mode: bool = True):
+        self.__debug = mode
+        print(f"*[HANDLER][DEBUG] MODE <- {mode}")
+
+    def log(self, string):
+        if self.__debug:
+            print(string)
+
+    def attach_context(self, ctx: discord.ext.commands.context):
+        self.__ctx = ctx
+
+    def attach_client(self, client: discord.ext.commands.AutoShardedBot):
+        self.__client = client
     
-    def attach_function(self, reaction, function, args: tuple):
+    def attach_function(self, reaction, function, *args):
         """Attaches a function to the reaction. The function will run if
            the reaction is triggered by the user.
 
@@ -32,14 +51,19 @@ class Menu:
             function (function): function that is going to be attached to that emoji
             args (tuple): arguments that need to be run as the arguments of the function.
         """
-        self.__reactions[reaction] = (function, args)
+        self.log(f'*[HANDLER][REACTION][ATTACH] {reaction} <- {function} <- {args}')
+        self.__reactions[reaction] = (function, *args)
+        self.log(f'*[HANDLER][REACTION][ATTACH] SUCCESS')
+
+    def attach_closing(self, page, *args):
+        self.__close = (Menu.change_page, self, page, *args)
         
-    async def attach_numbers(self, obj = None):
+    async def attach_numbers(self, obj=None):
         """makes the pages behave in a page form."""
         if len(self.__pages) == 1:
             return
         for page, i in zip(self.__pages.keys(), range(1, 10)):
-            self.__reactions[emojis.PAGES[i]] = (Menu.change_page, (self, page, obj))
+            self.__reactions[emojis.PAGES[i]] = (Menu.change_page, self, page, obj)
         
     def verify(self, reaction: discord.reaction.Reaction, user: discord.member.Member):
         """method that checks that the reaction is sent from the user.
@@ -68,20 +92,44 @@ class Menu:
         """This method deploys the menu into the ctx.channel and manages the menu."""
 
         await self.__handler.display(self.__main, obj)
+        self.log(f"*[HANDLER][MENU] DEPLOYED")
 
         for i in self.__reactions.keys():
+            self.log(f"*[HANDLER][MENU][EMOJI] ATTACHING: {i}")
             await self.__handler.message.add_reaction(i)
-        
+            self.log(f"*[HANDLER][RESPONSE] ATTACHED")
+
+
+
         while not self.__exit:
-            reaction, user = await self.__bot.wait_for('reaction_add', timeout=60.0, check=self.verify)
-            if reaction is None:
-                break
-            
-            emoji = reaction.emoji
-            if emoji in self.__reactions.keys():
-                func, args = self.__reactions[emoji]
+
+            try:
+                reaction, user = await self.__client.wait_for('reaction_add', timeout=60.0, check=self.verify)
+                self.log(f"*[HANDLER][REACTION] READ: {reaction}")
+
+            except asyncio.futures.TimeoutError:
+
+                self.log(f"*[HANDLER][MENU] TIMEOUT")
+
+                if self.__close is None:
+                    break
+
+                func, *args = self.__close
+                self.log(f"*[HANDLER][MENU][FUNCTION_TRIGGER] {func} <- {args})")
                 await func(*args)
-            await reaction.remove(user)
+
+            else:
+
+                emoji = reaction.emoji
+                self.log(f"*[HANDLER][CONVERSION] {emoji}")
+                if str(emoji) in self.__reactions.keys():
+                    self.log(f"*[HANDLER][MENU][EMOJI] RECOGNISED {str(emoji)}")
+                    func, *args = self.__reactions[str(emoji)]
+                    self.log(f"*[HANDLER][MENU][FUNCTION_TRIGGER] {func} <- {args})")
+                    await func(*args)
+                else:
+                    self.log(f"*[HANDLER][EMOJI] {emoji} NOT IN {self.__reactions.keys()}")
+                await reaction.remove(user)
 
     async def clear_reactions(self):
         self.__ctx.message.clear_reactions()
@@ -91,8 +139,11 @@ class Menu:
 
         Args:
             page (str): flow state that identifies the page embed in the page
+            obj (object): obj that the page might require
         """
+        self.log(f"*[HANDLER][PAGE] CHANGING -> {page}")
         await self.__handler.display(page, obj)
+        self.log(f"*[HANDLER][PAGE] CHANGED")
 
 
 class Handler:
@@ -145,7 +196,6 @@ class Handler:
         else:
             await self.message.edit(embed=self.retrieve_embed(flow, obj))
 
-
     def retrieve_embed(self, flow_type, obj=None):
         """Reads the contents of the section in the .ini file, and
         creates an embed with that data.
@@ -161,17 +211,15 @@ class Handler:
         colour = colours.get_colour(flow.colour)
         embed = Embed(title=flow.title, colour=colour)
         fields = flow.fields
-        if type(fields[0]) == tuple:
-            for field in fields:
-                if len(field) == 2:
-                    embed.add_field(name=field[0], value=field[1].replace('\t',''), inline=True)
-                else:
-                    embed.add_field(name=field[0], value=field[1].replace('\t',''), inline=field[2])
-        else:
-            if len(fields) == 2:
-                embed.add_field(name=fields[0], value=fields[1].replace('\t',''), inline=True)
+        if type(fields[0]) != tuple:
+            fields = (fields,)
+
+        for field in fields:
+            if len(field) == 2:
+                embed.add_field(name=field[0], value=field[1].replace('\t',''), inline=True)
             else:
-                embed.add_field(name=fields[0], value=fields[1].replace('\t',''), inline=fields[2])
+                embed.add_field(name=field[0], value=field[1].replace('\t',''), inline=field[2])
+
 
         embed.set_footer(text=flow.footer_text, icon_url=flow.footer_icon)
         embed.set_thumbnail(url=flow.thumbnail)
@@ -188,7 +236,7 @@ class Handler:
         Returns:
         Menu : Object that contains the menu
         """
-        embed = self.retrieve_embed(flow_type)
+
         pointer = self.__pages[flow_type].pointer
         menu = [(flow_type, self.__pages[flow_type])]
 
