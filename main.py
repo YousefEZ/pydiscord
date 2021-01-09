@@ -34,6 +34,7 @@ async def menu_test(ctx, *args):
     player = base.DummyNation()  # Generates a simulated player.
     handler = Handler(ctx, bot, hp.flows)  # Supplies the data to the handler
     menu = handler.retrieve_menu(menu_name)
+    menu.debug(True)
     print('*[CLIENT] RETRIEVED MENU')
     await menu.attach_numbers()  # Attach the reactions to change pages
     await menu.deploy_menu(player)  # Sends the menu to the user.
