@@ -36,7 +36,7 @@ async def menu_test(ctx, *args):
     menu = handler.retrieve_menu(menu_name)
     menu.debug(True)
     print('*[CLIENT] RETRIEVED MENU')
-    await menu.attach_numbers()  # Attach the reactions to change pages
+    await menu.attach_numbers(player)  # Attach the reactions to change pages
     await menu.deploy_menu(player)  # Sends the menu to the user.
 
     print('*[CLIENT] EXITING MENU FUNCTION')
