@@ -6,7 +6,7 @@ from utils import colours, emojis
 
 
 
-class Menu:
+class Menu():
     """Object that manages embed in a form of a menu."""
 
     def __init__(self, pages: list, ctx: discord.ext.commands.context = None,
@@ -36,8 +36,14 @@ class Menu:
         if self.__debug:
             print(string)
 
+    def reload_handler(self):
+        self.__handler = Handler(self.__ctx, self.__client, self.__pages)
+
     def attach_context(self, ctx: discord.ext.commands.context):
         self.__ctx = ctx
+
+    def get_context(self) -> discord.ext.commands.context:
+        return self.__ctx
 
     def attach_client(self, client: discord.ext.commands.AutoShardedBot):
         self.__client = client
@@ -87,43 +93,41 @@ class Menu:
             await message.add_reaction(reaction)
         
         await asyncio.sleep(2)
-    
+
+    async def hook_message(self, message):
+        """Method that allows you to hook a message, instead of making a new message"""
+        self.message = message
+        await self.clear_reactions()
+
+    def get_message(self):
+        return self.message
+
     async def deploy_menu(self, obj=None):
         """This method deploys the menu into the ctx.channel and manages the menu."""
-
-        await self.__handler.display(self.__main, obj)
-        self.log(f"*[HANDLER][MENU] DEPLOYED")
-
-        for i in self.__reactions.keys():
-            self.log(f"*[HANDLER][MENU][EMOJI] ATTACHING: {i}")
-            await self.__handler.message.add_reaction(i)
-            self.log(f"*[HANDLER][RESPONSE] ATTACHED")
-
-
 
         while not self.__exit:
 
             try:
+                await self.__handler.display(self.__main, obj)
+                self.log(f"*[HANDLER][MENU] DEPLOYED")
+
+                for i in self.__reactions.keys():
+                    await self.__handler.message.add_reaction(i)
+
+                self.log(f"*[HANDLER][RESPONSE] REACTIONS ATTACHED")
                 reaction, user = await self.__client.wait_for('reaction_add', timeout=60.0, check=self.verify)
                 self.log(f"*[HANDLER][REACTION] READ: {reaction}")
 
             except asyncio.futures.TimeoutError:
 
-                self.log(f"*[HANDLER][MENU] TIMEOUT")
-
-                if self.__close is None:
-                    break
-
-                func, *args = self.__close
-                self.log(f"*[HANDLER][MENU][FUNCTION_TRIGGER] {func} <- {args})")
-                await func(*args)
+                self.log(f"*[HANDLER][MENU] TIMED OUT")
+                self.__exit = True
 
             else:
 
                 emoji = reaction.emoji
                 self.log(f"*[HANDLER][CONVERSION] {emoji}")
                 if str(emoji) in self.__reactions.keys():
-                    self.log(f"*[HANDLER][MENU][EMOJI] RECOGNISED {str(emoji)}")
                     func, *args = self.__reactions[str(emoji)]
                     self.log(f"*[HANDLER][MENU][FUNCTION_TRIGGER] {func} <- {args})")
                     await func(*args)
@@ -131,19 +135,39 @@ class Menu:
                     self.log(f"*[HANDLER][EMOJI] {emoji} NOT IN {self.__reactions.keys()}")
                 await reaction.remove(user)
 
+        await self.exit()
+
     async def clear_reactions(self):
         self.__ctx.message.clear_reactions()
 
-    async def change_page(self, page, obj=None):
-        """function that changes the embed on display
+    async def exit(self):
+        """Method that exits the menu loop, and begins the closure function"""
+        self.__exit = True
+        if self.__close is None:
+            return
+
+        func, *args = self.__close
+        self.log(f"*[HANDLER][MENU][FUNCTION_TRIGGER] {func} <- {args})")
+        await func(*args)
+
+    async def change_page(self, page, obj=None, *args):
+        """Method that changes the embed on display
 
         Args:
             page (str): flow state that identifies the page embed in the page
             obj (object): obj that the page might require
         """
         self.log(f"*[HANDLER][PAGE] CHANGING -> {page}")
-        await self.__handler.display(page, obj)
+        await self.__handler.display(page, obj, *args)
         self.log(f"*[HANDLER][PAGE] CHANGED")
+
+    async def get_input(self):
+        """This method waits for a message to be sent by the user"""
+        confirm = await self.__client.wait_for('message', timeout=60.0, check=self.verify)
+
+        if confirm is not None:
+            return confirm.content
+        return None
 
 
 class Handler:
@@ -158,7 +182,7 @@ class Handler:
         self.__pages = pages
         self.message = None
 
-    
+
     def verify(self, message):
         """Method verifies if the content of the message is in the contents
 
@@ -168,7 +192,7 @@ class Handler:
         Returns:
             bool: true of false that indicates whether the data is valid.
         """
-        
+
         return message.author == self.__ctx.message.author and message.channel == self.__ctx.message.channel
 
     async def get_message(self):
@@ -180,10 +204,10 @@ class Handler:
             return confirm.content
         return None
 
-    async def send(self, flow: str, obj):
-        return await self.__ctx.send(embed=self.retrieve_embed(flow, obj))
+    async def send(self, flow: str, obj, *args):
+        return await self.__ctx.send(embed=self.retrieve_embed(flow, obj, *args))
 
-    async def display(self, flow, obj=None):
+    async def display(self, flow, obj=None, *args):
         """this is the main function that we use to send one message, and one message only.
            However edits to that message can take place.
 
@@ -192,11 +216,11 @@ class Handler:
         """
 
         if self.message is None:
-            self.message = await self.send(flow, obj)
+            self.message = await self.send(flow, obj, *args)
         else:
-            await self.message.edit(embed=self.retrieve_embed(flow, obj))
+            await self.message.edit(embed=self.retrieve_embed(flow, obj, *args))
 
-    def retrieve_embed(self, flow_type, obj=None):
+    def retrieve_embed(self, flow_type, obj=None, *args):
         """Reads the contents of the section in the .ini file, and
         creates an embed with that data.
 
@@ -206,7 +230,8 @@ class Handler:
         Returns:
             Embed: Embed Object, discord compatible.
         """
-        flow = self.__pages[flow_type](obj)
+        flow = self.__pages[flow_type](obj, *args)
+        print(flow)
 
         colour = colours.get_colour(flow.colour)
         embed = Embed(title=flow.title, colour=colour)
