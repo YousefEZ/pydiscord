@@ -3,7 +3,7 @@ from discord.ext import commands
 from src.handler import Handler
 from utils import settings
 from host import base
-from responses import help as hp
+from responses import test
 
 prefix = "!"
 bot = commands.AutoShardedBot(command_prefix=prefix)
@@ -32,7 +32,7 @@ async def menu_test(ctx, *args):
 
     menu_name = " ".join(args)
     player = base.DummyNation()  # Generates a simulated player.
-    handler = Handler(ctx, bot, hp.flows)  # Supplies the data to the handler
+    handler = Handler(ctx, bot, test.flows)  # Supplies the data to the handler
     menu = handler.retrieve_menu(menu_name)
     menu.debug(True)
     print('*[CLIENT] RETRIEVED MENU')
@@ -48,7 +48,7 @@ async def help(ctx, request: str = None):
         request = 'HELP'
 
     request = request.upper()
-    handler = Handler(ctx, bot, hp.flows)
+    handler = Handler(ctx, bot, test.flows)
     await handler.display(request, None)
 
 
@@ -65,7 +65,7 @@ async def embed_test(ctx, *args):
 
     flow = ' '.join(args)
     player = base.DummyNation()
-    handler = Handler(ctx, bot, hp.flows)
+    handler = Handler(ctx, bot, test.flows)
     await handler.display(flow, player)
     print('*[CLIENT] EXITING EMBED FUNCTION')
 
