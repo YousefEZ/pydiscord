@@ -2,12 +2,6 @@
 
 discord.py handler that gets data from python classes and produces embed &amp; menus
 
-Run the following command into the terminal
-```
-pip3 install discord.py
-```
-to install discord.py API.
-
 make a new .py file, and make a dictionary containing the flow name and its corresponding object
 at the end of the file and call it `flows`.
 
