@@ -11,7 +11,7 @@ then its
 from responses import tutorial
 ```
 
-change the help.flows to the name of your new response file, so if 
+change the test.flows to the name of your new response file, so if 
 tutorial is the new response .py file then change it to tutorial.flows
 
 __for embed tests__
