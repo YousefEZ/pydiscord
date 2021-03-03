@@ -4,9 +4,7 @@ import discord.ext
 
 from utils import colours, emojis
 
-
-
-class Menu():
+class Menu:
     """Object that manages embed in a form of a menu."""
 
     def __init__(self, pages: list, ctx: discord.ext.commands.context = None,
@@ -71,7 +69,7 @@ class Menu():
         for page, i in zip(self.__pages.keys(), range(1, 10)):
             self.__reactions[emojis.PAGES[i]] = (Menu.change_page, self, page, obj)
         
-    def verify(self, reaction: discord.reaction.Reaction, user: discord.member.Member):
+    def verify(self, reaction: discord.reaction.Reaction, user: discord.member.Member) -> bool:
         """method that checks that the reaction is sent from the user.
 
         Args:
@@ -161,7 +159,7 @@ class Menu():
         await self.__handler.display(page, obj, *args)
         self.log(f"*[HANDLER][PAGE] CHANGED")
 
-    async def get_input(self):
+    async def get_input(self) -> str:
         """This method waits for a message to be sent by the user"""
         confirm = await self.__client.wait_for('message', timeout=60.0, check=self.verify)
 
@@ -204,7 +202,7 @@ class Handler:
             return confirm.content
         return None
 
-    async def send(self, flow: str, obj, *args):
+    async def send(self, flow: str, obj, *args) -> bool:
         return await self.__ctx.send(embed=self.retrieve_embed(flow, obj, *args))
 
     async def display(self, flow, obj=None, *args):
@@ -231,7 +229,6 @@ class Handler:
             Embed: Embed Object, discord compatible.
         """
         flow = self.__pages[flow_type](obj, *args)
-        print(flow)
 
         colour = colours.get_colour(flow.colour)
         embed = Embed(title=flow.title, colour=colour)
@@ -252,7 +249,7 @@ class Handler:
 
         return embed
 
-    def retrieve_menu(self, flow_type: str):
+    def retrieve_menu(self, flow_type: str) -> Menu:
         """Method that gets the menu specified
 
         Args:
