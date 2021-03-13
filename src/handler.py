@@ -4,6 +4,7 @@ import discord.ext
 
 from utils import colours, emojis
 
+
 class Menu:
     """Object that manages embed in a form of a menu."""
 
@@ -69,7 +70,7 @@ class Menu:
         for page, i in zip(self.__pages.keys(), range(1, 10)):
             self.__reactions[emojis.PAGES[i]] = (Menu.change_page, self, page, obj)
         
-    def verify(self, reaction: discord.reaction.Reaction, user: discord.member.Member) -> bool:
+    def verify(self, reaction: discord.reaction.Reaction, user: discord.member.Member):
         """method that checks that the reaction is sent from the user.
 
         Args:
@@ -94,20 +95,21 @@ class Menu:
 
     async def hook_message(self, message):
         """Method that allows you to hook a message, instead of making a new message"""
-        self.message = message
+        self.__handler.message = message
         await self.clear_reactions()
 
     def get_message(self):
-        return self.message
+        return self.__handler.message
 
     async def deploy_menu(self, obj=None):
         """This method deploys the menu into the ctx.channel and manages the menu."""
 
+        await self.__handler.display(self.__main, obj)
+        self.log(f"*[HANDLER][MENU] DEPLOYED")
+
         while not self.__exit:
 
             try:
-                await self.__handler.display(self.__main, obj)
-                self.log(f"*[HANDLER][MENU] DEPLOYED")
 
                 for i in self.__reactions.keys():
                     await self.__handler.message.add_reaction(i)
@@ -159,7 +161,7 @@ class Menu:
         await self.__handler.display(page, obj, *args)
         self.log(f"*[HANDLER][PAGE] CHANGED")
 
-    async def get_input(self) -> str:
+    async def get_input(self):
         """This method waits for a message to be sent by the user"""
         confirm = await self.__client.wait_for('message', timeout=60.0, check=self.verify)
 
@@ -179,7 +181,6 @@ class Handler:
         self.__bot = bot
         self.__pages = pages
         self.message = None
-
 
     def verify(self, message):
         """Method verifies if the content of the message is in the contents
@@ -202,7 +203,7 @@ class Handler:
             return confirm.content
         return None
 
-    async def send(self, flow: str, obj, *args) -> bool:
+    async def send(self, flow: str, obj, *args):
         return await self.__ctx.send(embed=self.retrieve_embed(flow, obj, *args))
 
     async def display(self, flow, obj=None, *args):
@@ -211,6 +212,7 @@ class Handler:
 
         Args:
             flow (str): name of the flow key.
+            obj (Object): an instance/object containing data that is used for the response. Defaults to None
         """
 
         if self.message is None:
@@ -224,6 +226,7 @@ class Handler:
 
         Args:
             flow_type (str): Name of the section in the .ini state
+            obj (Object): an instance/object containing data that is used for the response. Defaults to None
 
         Returns:
             Embed: Embed Object, discord compatible.
@@ -238,10 +241,9 @@ class Handler:
 
         for field in fields:
             if len(field) == 2:
-                embed.add_field(name=field[0], value=field[1].replace('\t',''), inline=True)
+                embed.add_field(name=field[0], value=field[1].replace('\t', ''), inline=True)
             else:
-                embed.add_field(name=field[0], value=field[1].replace('\t',''), inline=field[2])
-
+                embed.add_field(name=field[0], value=field[1].replace('\t', ''), inline=field[2])
 
         embed.set_footer(text=flow.footer_text, icon_url=flow.footer_icon)
         embed.set_thumbnail(url=flow.thumbnail)
@@ -249,7 +251,7 @@ class Handler:
 
         return embed
 
-    def retrieve_menu(self, flow_type: str) -> Menu:
+    def retrieve_menu(self, flow_type: str):
         """Method that gets the menu specified
 
         Args:
