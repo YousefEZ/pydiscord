@@ -9,13 +9,13 @@ class Tutorial:
 
         self.fields = (('Official Discord Server:',
                    '''
-                   https://discord.gg/YDSDuHg
+                   https://discord.com/invite/discord-developers
         
-                   **-**`tutorial`: :mortar_board: A simple tutorial for how the League of Nations bot works.
+                   **-**`tutorial`: :mortar_board: A simple tutorial for how the bot works.
         
                    ''', False))
-        self.footer_text = "\u00A9 2018 | LoN Bot"
-        self.footer_icon = "https://cdn.discordapp.com/avatars/449719890312691715/f4ed4549080d4925f4954cf5077620b1.png"
+        self.footer_text = "\u00A9 2018 | Bot"
+        self.footer_icon = "https://1000logos.net/wp-content/uploads/2020/10/Discord-emblem.jpg"
         self.thumbnail = ""
         self.image = ""
     pointer = None
@@ -24,66 +24,36 @@ class Tutorial:
 class P1:
     flow = "p1"
     type = "menu"
-    title = "__ALLIANCE HELP CONT.__"
+    title = "Tutorial HELP CONT.__"
     colour = "blue"
     def __init__(self, player=None): 
 
-        self.fields = (("https://discord.gg/YDSDuHg",
+        self.fields = (("https://discord.com/invite/discord-developers",
                    """
-                   \u200b
-                   **-**`alliance set flag <url>`: :flag_fr: Sets the flag for your alliance. (Requires __leadingstate__ permissions).
-        
-                   **-**`alliance promote @mention <role>`: :arrow_up: Promote a member in the alliance to that specific role. (Requires __coleadingstate__ permissions or above).
-        
-                   **-**`alliance demote @mention <role>`: :arrow_down: Demote a member in the alliance from that specific role. (Requires __coleadingstate__ permissions or above).
-        
-                   **-**`alliance sanction nation @mention`: :x: Sanction a nation preventing them from __trading__ & __aiding__ with the alliance members. (Requires __coleadingstate__ permissions or above).
-        
-                   **-**`alliance sanction lift nation @mention`: :ballot_box_with_check: Remove a sanction from a nation.
-        
-                   **-**`alliance leave`: :warning: Leave an alliance (__confirm__ afterwards).
-        
-                   __***Notes***__: Alliance roles include the following - __leadingstate__, __coleadingstate__, __bankingstate__, __peacekeepingstate__ and __inventationalstate__.
-        
-                   """))
-        self.footer_text = "\u00A9 2018 | LoN Bot"
-        self.footer_icon = "https://cdn.discordapp.com/avatars/449719890312691715/f4ed4549080d4925f4954cf5077620b1.png"
-        self.thumbnail = "https://cdn.discordapp.com/attachments/729711470773797016/749779020174065674/Untitled.png"
+                   https://discord.com/invite/discord-developers                   """))
+        self.footer_text = "\u00A9 2018 | Bot"
+        self.footer_icon = "https://1000logos.net/wp-content/uploads/2020/10/Discord-emblem.jpg"
+        self.thumbnail = "https://1000logos.net/wp-content/uploads/2020/10/Discord-emblem.jpg"
         self.image = ""
     pointer = None
 
 
-class Alliance:
-    flow = "ALLIANCE"
+class P2:
+    flow = "p2"
     type = " main menu"
-    title = "__ALLIANCE HELP__"
+    title = "__Tutorial HELP__"
     colour = "blue"
     def __init__(self, player=None):
 
         self.fields = (("Official Discord Server:",
                    """
     
-                   https://discord.gg/YDSDuHg
-    
-                   **-**`alliance create`: :beginner: Create an in game alliance. (Specify __alliance name__ and __confirm__ afterwords. Alliance creation costs `12.5 Million`).
-    
-                   **-**`alliance invite @mention`: :white_check_mark: Invite someone into your alliance. (Requires __invitationalstate__ permissions or above).
-    
-                   **-**`alliance view <alliance name>`: :family_mwg: View members in an alliance.
-    
-                   **-**`alliance view bank`: :pound: View alliance funds. (Requires __bankingstate__ permissions or higher). You can withdraw up to a maximum of `10 Million` per withdrawal, but this maximum decreases as your tech level/amount rises. You accept the alliance aid package via the **-**`aid` command.
-    
-                   **-**`alliance view invites`: :information_source: View your current alliance invites.
-    
-                   **-**`alliance contribute funds <# amount>`: :moneybag: Contribute money into your alliance.
-    
-                   **-**`alliance set flag <url>`: :flag_hm: Sets the flag for your alliance. (Requires __leadingstate__ permissions).
-    
+                   https://discord.com/invite/discord-developers
                    """))
-        self.footer_text = "\u00A9 2018 | LoN Bot"
-        self.footer_icon = "https://cdn.discordapp.com/avatars/449719890312691715/f4ed4549080d4925f4954cf5077620b1.png"
-        self.thumbnail = "https://cdn.discordapp.com/attachments/729711470773797016/749779020174065674/Untitled.png"
-        self.image = "https://cdn.discordapp.com/attachments/729711470773797016/794636506802946078/rsz_logo.png"
+        self.footer_text = "\u00A9 2018 | Bot"
+        self.footer_icon = "https://1000logos.net/wp-content/uploads/2020/10/Discord-emblem.jpg"
+        self.thumbnail = "https://1000logos.net/wp-content/uploads/2020/10/Discord-emblem.jpg"
+        self.image = "https://1000logos.net/wp-content/uploads/2020/10/Discord-emblem.jpg"
     pointer = P1
 
 
