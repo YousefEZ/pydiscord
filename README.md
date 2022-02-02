@@ -1,4 +1,4 @@
-# discord-handler
+# pydiscord
 
 discord.py handler that gets data from python classes and produces embed &amp; menus
 
