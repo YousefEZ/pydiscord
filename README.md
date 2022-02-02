@@ -23,5 +23,3 @@ __for menu tests__
 ```
 !menu_test main_menu_title
 ```
-
-CREATED FOR: LEAGUE OF NATIONS: https://top.gg/bot/449719890312691715
