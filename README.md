@@ -1,5 +1,9 @@
 # pydiscord
 
+### ⚠ This template is deprecated please refer to this [library](https://github.com/YousefEZ/discord-qalib)
+
+-----
+
 discord.py handler that gets data from python classes and produces embed &amp; menus
 
 make a new .py file, and make a dictionary containing the flow name and its corresponding object
